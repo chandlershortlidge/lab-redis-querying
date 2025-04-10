@@ -2,98 +2,85 @@
 
 # Lab | Redis: Querying the Movies Dataset
 
-This lab is designed to help you practice creating custom classes, defining operators, and writing functions in R. Follow the instructions and complete the tasks below.
+## Objective
 
-## Task 1: Create a Custom S3 Class
+This lab will help you practice querying data in Redis using the dataset provided [here](https://redis.io/learn/howtos/moviesdatabase/import#importing-the-movies-theaters-and-users). You will execute a series of progressively challenging queries to retrieve, filter, and manipulate movie-related data.
 
-1. Define a custom S3 class called "Circle" that represents a circle. The class should store the radius of the circle.
-2. Write a constructor function Circle() that takes the radius as input and assigns the class "Circle" to the object.
-3. Write a print.Circle() method to display the radius and area of the circle when the object is printed. Use the formula for the area of a circle: area = π * radius^2.
+## Dataset Overview
 
-**Example:**
-```r
-my_circle <- Circle(5)
-print(my_circle)
+The dataset consists of the following key types:
+- **Movies**: Stored as hashes with keys like `movie:<id>`
+- **Theaters**: Stored as hashes with keys like `theater:<id>`
+- **Users**: Stored as hashes with keys like `user:<id>`
+- **Ratings**: Stored as sorted sets to track movie ratings
+- **Indexes**: Secondary indexes to facilitate searching
+
+## Lab Instructions
+
+**Perform the following queries in Redis CLI.**
+
+### **1. Retrieve a Movie by ID**
+
+Fetch details of the movie with ID `1`.
+```sh
+HGETALL movie:1
 ```
-**Output:** <br>
-Type: "Circle object" <br>
-Radius: 5<br>
-Area: 78.53982<br>
 
-## Task 2: Define a Custom Operator
+### **2. List All Movies**
 
-1. Define a custom operator %>% that calculates the distance between the centers of two circles and checks if they intersect. The operator should return TRUE if the circles intersect and FALSE otherwise.
-The formula for the distance between two circles is: distance = sqrt((x2 - x1)^2 + (y2 - y1)^2).
-	- Assume that the circles are centered at (x1, y1) and (x2, y2), respectively.
-	- Two circles intersect if the distance between their centers is less than or equal to the sum of their radii.
-2. Modify the Circle class to include x and y coordinates for the center of the circle.
-
-	**Example:**
-	```r
-	circle1 <- Circle(radius = 3, x = 0, y = 0)
-	circle2 <- Circle(radius = 4, x = 5, y = 0)
-	circle1 %> circle2
-	```
-	**Output:** TRUE
-
-## Task 3: Write a Function for the Class
-
-1. Write a function circumference() that calculates the circumference of a Circle object. The formula for the circumference is: circumference = 2 * π * radius.
-2. Add this function as a method for the Circle class so that it can be called directly on objects of the class.
-
-	**Example:**
-	```r
-	my_circle <- Circle(radius = 5)
-	circumference(my_circle)
-	```
-	**Output:** 31.41593
-
-## Task 4: Create a Custom S4 Class
-	
-1. Define a custom S4 class called "Rectangle" that represents a rectangle. The class should store the length and width of the rectangle.
-2. Write a constructor function Rectangle() that takes the length and width as input and creates an object of the "Rectangle" class.
-3. Write a show() method for the Rectangle class to display the length, width, and area of the rectangle when the object is printed.
-
-	**Example:**
-	```r
-	my_rectangle <- Rectangle(length = 4, width = 6)
-	show(my_rectangle)
-	```
-	**Output:** <br>
-	Type: "Rectangle object" <br>
-	Length: 4 <br>
-	Width: 6 <br>
-	Area: 24<br>
-
-## Task 5: Define a Custom Operator for the S4 Class
-
-1. Define a custom operator %==% that compares two Rectangle objects and checks if they have the same area.
-2. The operator should return TRUE if the areas are equal and FALSE otherwise.
-
-	**Example:**
-	```r
-	rectangle1 <- Rectangle(length = 4, width = 6)
-	rectangle2 <- Rectangle(length = 3, width = 8)
-	rectangle1 %==% rectangle2
-	```
-	**Output:** TRUE
-
-### Resources
-
-- [R Documentation on S3 Classes](https://adv-r.hadley.nz/s3.html)
-- [R Documentation on S4 Classes](https://adv-r.hadley.nz/s4.html)
-- [R Operators](https://stat.ethz.ch/R-manual/R-devel/library/base/html/Arithmetic.html)
-
-## Deliverables
-
-- Submitted notebook (or file) with your responses to each of the exercises.
-
-## Submission
-
-- Upon completion, add your deliverables to git. 
-- Then commit git and push your branch to the remote.
-- Make a pull request and paste the PR link in the submission field in the Student Portal.
+Retrieve all movie IDs stored in Redis.
+```sh
+KEYS movie:*
+```
 
 <br>
 
-**Good luck!**
+**Redis CLI does not support some of the operations bellow. You must try them out in Python.**
+- [A Quick Guide Here](https://medium.com/@tubelwj/redis-simplified-a-concise-tutorial-on-redis-with-python-c449194ecf07) 
+
+### **3. Find Movies by Title Prefix**
+
+Find all movies that start with "The Lord of the Rings".
+
+```python
+import redis
+
+r = redis.Redis()
+results = []
+
+for key in r.scan_iter(match="movie:*"):
+    title = r.hget(key, "title").decode('utf-8')
+    if "The Lord of the Rings" in title:
+        results.append(title)
+```
+
+### **4. Retrieve Theaters in a Specific City**
+
+Find all theaters located in "New York".
+
+### **5. Get Top-Rated Movies**
+
+Retrieve the top 5 movies based on rating.
+
+### **6. Find Movies Released After 2010**
+
+Retrieve movies where the release year is greater than 2010.
+
+### **7. Get Movies by Genre**
+
+Find all movies labeled as "Action".
+
+### **8. Get Movies with Ratings Between 7 and 9**
+
+Find all movies that have a rating between 7.0 and 9.0.
+
+## **Completion**
+
+After executing these queries, you should have a strong understanding of how to interact with Redis and retrieve relevant movie data efficiently. Try modifying the queries to experiment further!
+
+## **Additional Challenges**
+
+- Modify query #5 to return the top 10 rated movies.
+- Find the 3 most recent movies added to the dataset.
+
+**Happy querying!** :rocket:
